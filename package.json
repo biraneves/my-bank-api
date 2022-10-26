@@ -1,6 +1,14 @@
 {
-  "name": "my-bank-api",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT"
+    "name": "my-bank-api",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.18.2",
+        "winston": "^3.8.2"
+    },
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon index.js"
+    }
 }
