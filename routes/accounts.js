@@ -18,6 +18,7 @@ router.post('/', async (req, res, next) => {
 
         await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
 
+        global.logger.info(`POST /account - ${JSON.stringify(account)}`);
         res.send(account);
     } catch (err) {
         next(err);
@@ -29,6 +30,7 @@ router.get('/', async (_req, res, next) => {
         const data = JSON.parse(await readFile(global.accountsFileName));
         delete data.nextId;
 
+        global.logger.info(`GET /account`);
         res.send(data);
     } catch (err) {
         next(err);
@@ -41,6 +43,8 @@ router.get('/:id', async (req, res, next) => {
         const account = data.accounts.find(
             (account) => account.id === parseInt(req.params.id),
         );
+
+        global.logger.info(`GET /account/:id`);
         res.send(account);
     } catch (err) {
         next(err);
@@ -55,6 +59,8 @@ router.delete('/:id', async (req, res, next) => {
         );
 
         await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
+
+        global.logger.info(`DELETE /account/:id - ${req.params.id}`);
         res.end();
     } catch (err) {
         next(err);
@@ -72,6 +78,7 @@ router.put('/', async (req, res, next) => {
 
         await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
 
+        global.logger.info(`PUT /account - ${JSON.stringify(account)}`);
         res.send(account);
     } catch (err) {
         next(err);
@@ -89,14 +96,15 @@ router.patch('/updateBalance', async (req, res, next) => {
 
         await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
 
+        global.logger.info(`PATCH /updateBalance - ${JSON.stringify(account)}`);
         res.send(data.accounts[index]);
     } catch (err) {
         next(err);
     }
 });
 
-router.use((err, _req, res, _next) => {
-    console.log(err.message);
+router.use((err, req, res, _next) => {
+    global.logger.error(`${req.method} ${req.baseUrl} - ${err.message}`);
     res.status(400).send({ error: err.message });
 });
 
