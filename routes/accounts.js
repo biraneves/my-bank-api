@@ -1,5 +1,5 @@
 import express from 'express';
-import { promises as fs, write } from 'fs';
+import { promises as fs } from 'fs';
 
 const router = express.Router();
 const { readFile, writeFile } = fs;
@@ -9,12 +9,14 @@ router.post('/', async (req, res) => {
         let account = req.body;
         const data = JSON.parse(await readFile('accounts.json'));
 
-        account.id = data.nextId;
-        data.nextId++;
+        account = {
+            id: data.nextId++,
+            ...account,
+        };
 
         data.accounts.push(account);
 
-        await writeFile('accounts.json', JSON.stringify(data));
+        await writeFile('accounts.json', JSON.stringify(data, null, 4));
 
         res.send(account);
     } catch (err) {
