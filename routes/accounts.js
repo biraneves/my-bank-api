@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 const router = express.Router();
 const { readFile, writeFile } = fs;
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     try {
         let account = req.body;
         const data = JSON.parse(await readFile(global.accountsFileName));
@@ -20,22 +20,22 @@ router.post('/', async (req, res) => {
 
         res.send(account);
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', async (_req, res, next) => {
     try {
         const data = JSON.parse(await readFile(global.accountsFileName));
         delete data.nextId;
 
         res.send(data);
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
     try {
         const data = JSON.parse(await readFile(global.accountsFileName));
         const account = data.accounts.find(
@@ -43,11 +43,11 @@ router.get('/:id', async (req, res) => {
         );
         res.send(account);
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
     try {
         const data = JSON.parse(await readFile(global.accountsFileName));
         data.accounts = data.accounts.filter(
@@ -57,11 +57,11 @@ router.delete('/:id', async (req, res) => {
         await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
         res.end();
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
 });
 
-router.put('/', async (req, res) => {
+router.put('/', async (req, res, next) => {
     try {
         const account = req.body;
         const data = JSON.parse(await readFile(global.accountsFileName));
@@ -74,11 +74,11 @@ router.put('/', async (req, res) => {
 
         res.send(account);
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
 });
 
-router.patch('/updateBalance', async (req, res) => {
+router.patch('/updateBalance', async (req, res, next) => {
     try {
         const account = req.body;
         const data = JSON.parse(await readFile(global.accountsFileName));
@@ -91,8 +91,13 @@ router.patch('/updateBalance', async (req, res) => {
 
         res.send(data.accounts[index]);
     } catch (err) {
-        res.status(400).send({ error: err.message });
+        next(err);
     }
+});
+
+router.use((err, _req, res, _next) => {
+    console.log(err.message);
+    res.status(400).send({ error: err.message });
 });
 
 export default router;
