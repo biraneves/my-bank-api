@@ -4,7 +4,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { promises as fs } from 'fs';
 
-import accountsRouter from './routes/accounts.js';
+import accountsRouter from './routes/account.routes.js';
 import { swaggerDoc } from './doc.js';
 
 global.accountsFileName = 'accounts.json';

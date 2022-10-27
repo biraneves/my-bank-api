@@ -1,34 +1,12 @@
 import express from 'express';
 import { promises as fs } from 'fs';
 
+import AccountController from '../controllers/account.controller.js';
+
 const router = express.Router();
 const { readFile, writeFile } = fs;
 
-router.post('/', async (req, res, next) => {
-    try {
-        let account = req.body;
-
-        if (!account.name || account.balance == null)
-            throw new Error('Name and balance are required fields.');
-
-        const data = JSON.parse(await readFile(global.accountsFileName));
-
-        account = {
-            id: data.nextId++,
-            name: account.name,
-            balance: account.balance,
-        };
-
-        data.accounts.push(account);
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
-
-        global.logger.info(`POST /account - ${JSON.stringify(account)}`);
-        res.send(account);
-    } catch (err) {
-        next(err);
-    }
-});
+router.post('/', AccountController.createAccount);
 
 router.get('/', async (_req, res, next) => {
     try {
