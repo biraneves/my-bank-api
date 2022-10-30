@@ -11,21 +11,7 @@ router.post('/', AccountController.createAccount);
 router.get('/', AccountController.readAccounts);
 router.get('/:id', AccountController.searchAccountById);
 
-router.delete('/:id', async (req, res, next) => {
-    try {
-        const data = JSON.parse(await readFile(global.accountsFileName));
-        data.accounts = data.accounts.filter(
-            (account) => account.id !== parseInt(req.params.id),
-        );
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
-
-        global.logger.info(`DELETE /account/:id - ${req.params.id}`);
-        res.end();
-    } catch (err) {
-        next(err);
-    }
-});
+router.delete('/:id', AccountController.deleteAccount);
 
 router.put('/', async (req, res, next) => {
     try {

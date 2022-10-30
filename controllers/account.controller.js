@@ -57,8 +57,26 @@ const searchAccountById = async (req, res, next) => {
     }
 };
 
+// Delete an account by Id
+const deleteAccount = async (req, res, next) => {
+    try {
+        const data = JSON.parse(await readFile(global.accountsFileName));
+        data.accounts = data.accounts.filter(
+            (account) => account.id !== parseInt(req.params.id),
+        );
+
+        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
+
+        global.logger.info(`DELETE /account/:id - ${req.params.id}`);
+        res.end();
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createAccount,
     readAccounts,
     searchAccountById,
+    deleteAccount,
 };
