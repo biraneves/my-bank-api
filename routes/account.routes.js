@@ -7,13 +7,11 @@ const router = express.Router();
 const { readFile, writeFile } = fs;
 
 router.post('/', AccountController.createAccount);
-
 router.get('/', AccountController.readAccounts);
-router.get('/:id', AccountController.searchAccountById);
-
-router.delete('/:id', AccountController.deleteAccount);
-
 router.put('/', AccountController.updateAccount);
+
+router.get('/:id', AccountController.searchAccountById);
+router.delete('/:id', AccountController.deleteAccount);
 
 router.patch('/updateBalance', AccountController.updateAccountBalance);
 
