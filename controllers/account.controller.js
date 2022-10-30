@@ -42,7 +42,23 @@ const readAccounts = async (_req, res, next) => {
     }
 };
 
+// Search an account by Id
+const searchAccountById = async (req, res, next) => {
+    try {
+        const data = JSON.parse(await readFile(global.accountsFileName));
+        const account = data.accounts.find(
+            (account) => account.id === parseInt(req.params.id),
+        );
+
+        global.logger.info(`GET /account/:id`);
+        res.send(account);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     createAccount,
     readAccounts,
+    searchAccountById,
 };
