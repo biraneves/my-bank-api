@@ -8,17 +8,7 @@ const { readFile, writeFile } = fs;
 
 router.post('/', AccountController.createAccount);
 
-router.get('/', async (_req, res, next) => {
-    try {
-        const data = JSON.parse(await readFile(global.accountsFileName));
-        delete data.nextId;
-
-        global.logger.info(`GET /account`);
-        res.send(data);
-    } catch (err) {
-        next(err);
-    }
-});
+router.get('/', AccountController.readAccounts);
 
 router.get('/:id', async (req, res, next) => {
     try {
