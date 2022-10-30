@@ -1,6 +1,4 @@
-import { promises as fs } from 'fs';
-
-const { readFile, writeFile } = fs;
+import AccountService from '../services/account.service.js';
 
 // Create an account based on request body
 const createAccount = async (req, res, next) => {
@@ -10,17 +8,7 @@ const createAccount = async (req, res, next) => {
         if (!account.name || account.balance == null)
             throw new Error('Name and balance are required fields.');
 
-        const data = JSON.parse(await readFile(global.accountsFileName));
-
-        account = {
-            id: data.nextId++,
-            name: account.name,
-            balance: account.balance,
-        };
-
-        data.accounts.push(account);
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
+        account = await AccountService.createAccount(account);
 
         global.logger.info(`POST /account - ${JSON.stringify(account)}`);
         res.send(account);
@@ -32,8 +20,7 @@ const createAccount = async (req, res, next) => {
 // Read all accounts
 const readAccounts = async (_req, res, next) => {
     try {
-        const data = JSON.parse(await readFile(global.accountsFileName));
-        delete data.nextId;
+        const data = await AccountService.readAccounts();
 
         global.logger.info(`GET /account`);
         res.send(data);
@@ -45,9 +32,8 @@ const readAccounts = async (_req, res, next) => {
 // Search an account by Id
 const searchAccountById = async (req, res, next) => {
     try {
-        const data = JSON.parse(await readFile(global.accountsFileName));
-        const account = data.accounts.find(
-            (account) => account.id === parseInt(req.params.id),
+        const account = await AccountService.searchAccountById(
+            parseInt(req.params.id),
         );
 
         global.logger.info(`GET /account/:id`);
@@ -60,12 +46,7 @@ const searchAccountById = async (req, res, next) => {
 // Delete an account by Id
 const deleteAccount = async (req, res, next) => {
     try {
-        const data = JSON.parse(await readFile(global.accountsFileName));
-        data.accounts = data.accounts.filter(
-            (account) => account.id !== parseInt(req.params.id),
-        );
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
+        await AccountService.deleteAccount(parseInt(req.params.id));
 
         global.logger.info(`DELETE /account/:id - ${req.params.id}`);
         res.end();
@@ -82,21 +63,10 @@ const updateAccount = async (req, res, next) => {
         if (!account.id || !account.name || account.balance == null)
             throw new Error('Id, name and balance are required fields.');
 
-        const data = JSON.parse(await readFile(global.accountsFileName));
+        const data = await AccountService.updateAccount(account);
 
-        const index = data.accounts.findIndex((a) => a.id === account.id);
-
-        if (index === -1) throw new Error('Account not found.');
-
-        data.accounts[index].name = account.name;
-        data.accounts[index].balance = account.balance;
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
-
-        global.logger.info(
-            `PUT /account - ${JSON.stringify(data.accounts[index])}`,
-        );
-        res.send(data.accounts[index]);
+        global.logger.info(`PUT /account - ${JSON.stringify(data)}`);
+        res.send(data);
     } catch (err) {
         next(err);
     }
@@ -105,21 +75,14 @@ const updateAccount = async (req, res, next) => {
 const updateAccountBalance = async (req, res, next) => {
     try {
         const account = req.body;
-        const data = JSON.parse(await readFile(global.accountsFileName));
-
-        const index = data.accounts.findIndex((a) => a.id === account.id);
 
         if (!account.id || account.balance == null)
             throw new Error('Id and balance are required fields.');
 
-        if (index === -1) throw new Error('Account not found.');
-
-        data.accounts[index].balance = account.balance;
-
-        await writeFile(global.accountsFileName, JSON.stringify(data, null, 4));
+        const data = await AccountService.updateAccountBalance(account);
 
         global.logger.info(`PATCH /updateBalance - ${JSON.stringify(account)}`);
-        res.send(data.accounts[index]);
+        res.send(data);
     } catch (err) {
         next(err);
     }

@@ -1,10 +1,10 @@
 {
-    "nextId": 8,
+    "nextId": 9,
     "accounts": [
         {
             "id": 1,
             "name": "Ubirajara Neves",
-            "balance": 4580.65
+            "balance": 4780.65
         },
         {
             "id": 2,
@@ -18,8 +18,8 @@
         },
         {
             "id": 5,
-            "name": "Maria Francisca",
-            "balance": 1200
+            "name": "Maria Francisquinha",
+            "balance": 2400
         },
         {
             "id": 6,
