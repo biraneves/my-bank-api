@@ -1,18 +1,14 @@
 import express from 'express';
-import { promises as fs } from 'fs';
 
 import AccountController from '../controllers/account.controller.js';
 
 const router = express.Router();
-const { readFile, writeFile } = fs;
 
 router.post('/', AccountController.createAccount);
 router.get('/', AccountController.readAccounts);
-router.put('/', AccountController.updateAccount);
-
 router.get('/:id', AccountController.searchAccountById);
 router.delete('/:id', AccountController.deleteAccount);
-
+router.put('/', AccountController.updateAccount);
 router.patch('/updateBalance', AccountController.updateAccountBalance);
 
 router.use((err, req, res, _next) => {
