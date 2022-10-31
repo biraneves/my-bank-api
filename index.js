@@ -3,6 +3,8 @@ import winston from 'winston';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { promises as fs } from 'fs';
+import { buildSchema } from 'graphql';
+import { graphqlHTTP } from 'express-graphql';
 
 import accountsRouter from './routes/account.routes.js';
 import { swaggerDoc } from './doc.js';
@@ -27,12 +29,35 @@ const PORT = 3000;
 
 const { readFile, writeFile } = fs;
 
+// GraphQL Schema
+const schema = buildSchema(`
+    type Account {
+        id: Int
+        name: String
+        balance: Float
+    }
+    type Query {
+        getAccounts: [Account]
+        getAccount(id: Int): Account
+    }
+`);
+// End Schema
+
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.use('/account', accountsRouter);
+
+app.use(
+    '/graphql',
+    graphqlHTTP({
+        schema,
+        rootValue: null,
+        graphiql: true,
+    }),
+);
 
 app.listen(PORT, async () => {
     try {
