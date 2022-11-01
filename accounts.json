@@ -1,5 +1,5 @@
 {
-    "nextId": 12,
+    "nextId": 14,
     "accounts": [
         {
             "id": 1,
@@ -30,6 +30,11 @@
             "id": 9,
             "name": "Paulus Pluviosorum",
             "balance": 800
+        },
+        {
+            "id": 12,
+            "name": "Guilherme",
+            "balance": 1000
         }
     ]
 }
