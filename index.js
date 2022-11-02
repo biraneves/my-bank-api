@@ -8,8 +8,8 @@ import { graphqlHTTP } from 'express-graphql';
 
 import accountsRouter from './routes/account.routes.js';
 import { swaggerDoc } from './doc.js';
-
 import AccountService from './services/account.service.js';
+import Schema from './schema/index.js';
 
 global.accountsFileName = 'accounts.json';
 
@@ -32,27 +32,27 @@ const PORT = 3000;
 const { readFile, writeFile } = fs;
 
 // GraphQL Schema
-const schema = buildSchema(`
-    type Account {
-        id: Int
-        name: String
-        balance: Float
-    }
-    input AccountInput {
-        id: Int
-        name: String
-        balance: Float
-    }
-    type Query {
-        getAccounts: [Account]
-        getAccount(id: Int): Account
-    }
-    type Mutation {
-        createAccount(account: AccountInput): Account
-        deleteAccount(id: Int): Boolean
-        updateAccount(account: AccountInput): Account
-    }
-`);
+// const schema = buildSchema(`
+//     type Account {
+//         id: Int
+//         name: String
+//         balance: Float
+//     }
+//     input AccountInput {
+//         id: Int
+//         name: String
+//         balance: Float
+//     }
+//     type Query {
+//         getAccounts: [Account]
+//         getAccount(id: Int): Account
+//     }
+//     type Mutation {
+//         createAccount(account: AccountInput): Account
+//         deleteAccount(id: Int): Boolean
+//         updateAccount(account: AccountInput): Account
+//     }
+// `);
 // End Schema
 
 const app = express();
@@ -63,19 +63,19 @@ app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.use('/account', accountsRouter);
 
 // GraphQL endpoint
-const root = {
-    getAccounts: () => AccountService.readAccounts(),
-    getAccount: (args) => AccountService.searchAccountById(args.id),
-    createAccount: ({ account }) => AccountService.createAccount(account),
-    deleteAccount: (args) => AccountService.deleteAccount(args.id),
-    updateAccount: ({ account }) => AccountService.updateAccount(account),
-};
+// const root = {
+//     getAccounts: () => AccountService.readAccounts(),
+//     getAccount: (args) => AccountService.searchAccountById(args.id),
+//     createAccount: ({ account }) => AccountService.createAccount(account),
+//     deleteAccount: (args) => AccountService.deleteAccount(args.id),
+//     updateAccount: ({ account }) => AccountService.updateAccount(account),
+// };
 
 app.use(
     '/graphql',
     graphqlHTTP({
-        schema,
-        rootValue: root,
+        schema: Schema,
+        // rootValue: root,
         graphiql: true,
     }),
 );
