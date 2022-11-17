@@ -2,7 +2,7 @@ import express from 'express';
 import winston from 'winston';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import basicAuth from 'express-basic-auth';
+import jwt from 'jsonwebtoken';
 import { promises as fs } from 'fs';
 
 import accountsRouter from './routes/account.routes.js';
@@ -33,45 +33,31 @@ app.use(express.json());
 app.use(cors());
 app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-const getRole = (username) => {
-    if (username == 'admin') return 'admin';
-    else if (username == 'biraneves') return 'role1';
-};
-
 const authorize = (...allowed) => {
     const isAllowed = (role) => allowed.indexOf(role) > -1;
 
     return (req, res, next) => {
-        if (req.auth.user) {
-            const role = getRole(req.auth.user);
+        const authHeader = req.headers['authorization'];
 
-            if (isAllowed(role)) {
+        if (!authHeader || !auth.startsWith('Bearer ')) {
+            res.status(401).json({ message: 'Access denied' });
+        }
+
+        const token = authHeader.substring(7, authHeader.length);
+
+        jwt.verify(token, 'secretKey', (err, payload) => {
+            if (err) {
+                res.status(401).json({ message: 'Invalid token' });
+            }
+
+            if (isAllowed(payload.role)) {
                 next();
             } else {
-                res.status(401).send('Role not allowed.');
+                res.status(401).send('Role not allowed');
             }
-        } else {
-            res.status(403).send('User not found.');
-        }
+        });
     };
 };
-
-app.use(
-    basicAuth({
-        authorizer: (username, password) => {
-            const userMatches = basicAuth.safeCompare(username, 'admin');
-            const passwordMatches = basicAuth.safeCompare(password, 'admin');
-
-            const user2Matches = basicAuth.safeCompare(username, 'biraneves');
-            const password2Matches = basicAuth.safeCompare(password, '1234');
-
-            return (
-                (userMatches && passwordMatches) ||
-                (user2Matches && password2Matches)
-            );
-        },
-    }),
-);
 
 app.use('/account', authorize('admin'), accountsRouter);
 
